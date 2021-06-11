@@ -1,0 +1,32 @@
+From 8aa0bdb928847498b770ff17ec650436b232bee9 Mon Sep 17 00:00:00 2001
+From: "Jiang, Mengyu" <jiang.work@hotmail.com>
+Date: Fri, 11 Jun 2021 19:45:34 +0800
+Subject: [PATCH] add xiaomi ac2100 factory.bin
+
+---
+ target/linux/ramips/image/mt7621.mk | 7 ++++---
+ 1 file changed, 4 insertions(+), 3 deletions(-)
+
+diff --git a/target/linux/ramips/image/mt7621.mk b/target/linux/ramips/image/mt7621.mk
+index 9f6fa54807..6f4d80011f 100644
+--- a/target/linux/ramips/image/mt7621.mk
++++ b/target/linux/ramips/image/mt7621.mk
+@@ -304,11 +304,12 @@ define Device/xiaomi-ac2100
+   KERNEL_SIZE := 4096k
+   IMAGE_SIZE := 120320k
+   UBINIZE_OPTS := -E 5
+-  IMAGES += kernel1.bin rootfs0.bin
++  IMAGES += kernel1.bin rootfs0.bin factory.bin
+   IMAGE/kernel1.bin := append-kernel
+-  IMAGE/rootfs0.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
++  IMAGE/rootfs0.bin := append-ubi | check-size
+   IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
+-  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e wpad-basic uboot-envtools
++  IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | check-size
++  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e wpad-ssl uboot-envtools
+ endef
+ 
+ define Device/xiaomi_mi-ac2100
+-- 
+2.24.3 (Apple Git-128)
+
