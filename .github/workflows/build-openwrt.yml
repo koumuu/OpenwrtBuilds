@@ -75,7 +75,7 @@ jobs:
     - name: Patch files
       run: |
         cd openwrt
-        git apply $GITHUB_WORKSPACE/$CUSTOM_DIR/patch/*.patch
+        git apply --whitespace=fix $GITHUB_WORKSPACE/$CUSTOM_DIR/patch/*.patch
 
     - name: Prepare file infos
       run: |
