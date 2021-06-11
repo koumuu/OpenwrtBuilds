@@ -1,0 +1,21 @@
+name: Build RedMi AC2100 (4.14)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 0 * * 1'
+
+jobs:
+  copy_config:
+    name: Build Fireware
+    runs-on: ubuntu-latest
+    if: github.event.repository.owner.id == github.event.sender.id
+    
+    steps:
+      - name: Invoke Workflow
+        uses: benc-uk/workflow-dispatch@v1
+        with:
+          workflow: Build OpenWrt
+          token: '${{secrets.PERSONAL_TOKEN}}'
+          inputs: '{"dir": "redmi.ac2100/4.14", "repo": "https://github.com/openwrt/openwrt", "branch": "v19.07.7"}'
+          
