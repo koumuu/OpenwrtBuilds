@@ -1,0 +1,93 @@
+name: Debug
+
+on:
+  workflow_dispatch:
+    inputs:
+      repo:
+        required: true
+      branch:
+        required: true
+        default: 'master'
+      dir:
+        required: true
+
+env:
+  REPO_URL: ${{github.event.inputs.repo}}
+  REPO_BRANCH: ${{github.event.inputs.branch}}
+  CUSTOM_DIR: ${{github.event.inputs.dir}}
+  TZ: Asia/Shanghai
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@main
+
+    - name: Install Prerequirements
+      env:
+        DEBIAN_FRONTEND: noninteractive
+      run: |
+        sudo rm -rf /etc/apt/sources.list.d/* /usr/share/dotnet /usr/local/lib/android /opt/ghc
+        sudo apt-get -y update
+        sudo apt-get -y install build-essential asciidoc binutils bzip2 gawk gettext git libncurses5-dev libz-dev patch unzip zlib1g-dev lib32gcc1 libc6-dev-i386 subversion flex uglifyjs gcc-multilib g++-multilib p7zip p7zip-full msmtp libssl-dev texinfo libglib2.0-dev xmlto qemu-utils upx libelf-dev autoconf automake libtool autopoint device-tree-compiler antlr3 gperf wget swig rsync python3.5 python2.7 git-core
+        sudo apt-get autoremove --purge
+        sudo apt-get clean
+        sudo timedatectl set-timezone "$TZ"
+        sudo mkdir -p /workdir
+        sudo chown $USER:$GROUPS /workdir
+
+    - name: Clone source code
+      working-directory: /workdir
+      run: |
+        df -hT $PWD
+        git clone $REPO_URL -b $REPO_BRANCH --single-branch openwrt
+        ln -sf /workdir/openwrt $GITHUB_WORKSPACE/openwrt
+
+    - name: Run pre-feeds script
+      run: |
+        [ -e $CUSTOM_DIR/override ] && cp -r $CUSTOM_DIR/override/. openwrt/
+        chmod +x $CUSTOM_DIR/pre.sh
+        cd openwrt
+        $GITHUB_WORKSPACE/$CUSTOM_DIR/pre.sh
+
+    - name: Update feeds
+      run: |
+        cd openwrt
+        ./scripts/feeds update -a
+        
+    - name: Install feeds
+      run: |
+        cd openwrt
+        ./scripts/feeds install -a
+        ./scripts/feeds install -a
+        
+    - name: Run post-feeds script
+      run: |
+        chmod +x $CUSTOM_DIR/post.sh
+        cd openwrt
+        $GITHUB_WORKSPACE/$CUSTOM_DIR/post.sh
+
+    - name: Patch files
+      run: |
+        cd openwrt
+        git apply --whitespace=fix $GITHUB_WORKSPACE/$CUSTOM_DIR/patch/*.patch
+
+    - name: Prepare file infos
+      run: |
+        cd openwrt
+        echo "DATE=$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+        echo "ID=$(echo $CUSTOM_DIR | sed 's/\//-/g')" >> $GITHUB_ENV
+
+    - name: Download packages
+      id: download
+      run: |
+        cd openwrt
+        make defconfig
+        make download -j8
+        find dl -size -1024c -exec ls -l {} \;
+        find dl -size -1024c -exec rm -f {} \;
+
+    - name: Debug
+      uses: P3TERX/ssh2actions@v1.0.0
