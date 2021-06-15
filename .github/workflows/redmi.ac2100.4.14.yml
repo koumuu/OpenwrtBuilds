@@ -17,5 +17,5 @@ jobs:
         with:
           workflow: Build OpenWrt
           token: '${{secrets.PERSONAL_TOKEN}}'
-          inputs: '{"dir": "redmi.ac2100/4.14", "repo": "https://github.com/openwrt/openwrt", "branch": "v19.07.7"}'
+          inputs: '{"dir": "redmi.ac2100/4.14", "repo": "https://github.com/openwrt/openwrt", "branch": "v19.07.4"}'
           
