@@ -1,7 +1,7 @@
-From 9f118109d4cfd0d63fb0a81a88bf8445e00f5502 Mon Sep 17 00:00:00 2001
+From 2469ce71502815a87fa1f045d0e7b2f0470f0856 Mon Sep 17 00:00:00 2001
 From: "Jiang, Mengyu" <jiang.work@hotmail.com>
-Date: Fri, 11 Jun 2021 22:22:58 +0800
-Subject: [PATCH] add xiaomi ac2100
+Date: Wed, 16 Jun 2021 04:15:30 +0800
+Subject: [PATCH] add Xiaomi/Redmi AC2100
 
 ---
  package/boot/uboot-envtools/files/ramips      |   3 +-
@@ -308,7 +308,7 @@ index 0000000000..3211e51dfc
 +	};
 +};
 diff --git a/target/linux/ramips/image/mt7621.mk b/target/linux/ramips/image/mt7621.mk
-index 28ae0d451f..6471e2290e 100644
+index 28ae0d451f..be4257c7ae 100644
 --- a/target/linux/ramips/image/mt7621.mk
 +++ b/target/linux/ramips/image/mt7621.mk
 @@ -298,6 +298,34 @@ define Device/xiaomi_mir3g
@@ -323,9 +323,9 @@ index 28ae0d451f..6471e2290e 100644
 +  UBINIZE_OPTS := -E 5
 +  IMAGES += kernel1.bin rootfs0.bin factory.bin
 +  IMAGE/kernel1.bin := append-kernel
-+  IMAGE/rootfs0.bin := append-ubi | check-size
++  IMAGE/rootfs0.bin := append-ubi | check-size $$$$(IMAGE_SIZE)
 +  IMAGE/sysupgrade.bin := sysupgrade-tar | append-metadata
-+  IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | check-size
++  IMAGE/factory.bin := append-kernel | pad-to $$(KERNEL_SIZE) | append-ubi | check-size $$$$(IMAGE_SIZE)
 +  DEVICE_PACKAGES := kmod-mt7603 kmod-mt7615e wpad-openssl uboot-envtools
 +endef
 +
