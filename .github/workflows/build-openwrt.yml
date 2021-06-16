@@ -92,21 +92,10 @@ jobs:
 
     - name: Compile
       id: compile
-      continue-on-error: true
       run: |
         cd openwrt
-        echo -e "$(($(nproc) + 1)) thread compile"
-        make -j$(($(nproc) + 1)) V=s
-        
-    - name: Safe compile(fallback)
-      id: safe-compile
-      if: steps.compile.outcome == 'failure'
-      run: |
-        cd openwrt
-        echo -e "safe compile"
-        make target/clean
         make -j1 V=s
-
+        
     - name: Upload bin directory
       uses: actions/upload-artifact@main
       if: env.UPLOAD_BIN_DIR == 'true'
