@@ -33,7 +33,7 @@ jobs:
         DEBIAN_FRONTEND: noninteractive
       run: |
         sudo apt-get -y update
-        sudo apt-get -y install build-essential ccache ecj fastjar file g++ gawk gettext git java-propose-classpath libelf-dev libncurses5-dev libncursesw5-dev libssl-dev python python2.7-dev python3 unzip wget python3-distutils python3-setuptools rsync subversion swig time xsltproc zlib1g-dev autoconf-archive
+        sudo apt-get -y install build-essential ccache ecj fastjar file g++ gawk gettext git java-propose-classpath libelf-dev libncurses5-dev libncursesw5-dev libssl-dev python python2.7-dev python3 unzip wget python3-distutils python3-setuptools rsync subversion swig time xsltproc zlib1g-dev
         sudo timedatectl set-timezone "$TZ"
         sudo mkdir -p /workdir
         sudo chown $USER:$GROUPS /workdir
@@ -50,13 +50,13 @@ jobs:
         [ -e $CUSTOM_DIR/override ] && cp -r $CUSTOM_DIR/override/. openwrt/
         chmod +x $CUSTOM_DIR/pre.sh
         cd openwrt
+        rm .config
         $GITHUB_WORKSPACE/$CUSTOM_DIR/pre.sh
 
-    - name: Install feeds (1st)
+    - name: Update feeds
       run: |
         cd openwrt
         ./scripts/feeds update -a
-        ./scripts/feeds install -a
         
     - name: Run post-feeds script
       run: |
@@ -69,10 +69,11 @@ jobs:
         cd openwrt
         [ -d $GITHUB_WORKSPACE/$CUSTOM_DIR/patch ] && git apply --whitespace=fix $GITHUB_WORKSPACE/$CUSTOM_DIR/patch/*.patch
 
-    - name: Install feeds (2nd)
+    - name: Install feeds
       run: |
         cd openwrt
         ./scripts/feeds install -a
+        cp $GITHUB_WORKSPACE/$CUSTOM_DIR/override/.config ./
 
     - name: Prepare file infos
       run: |
