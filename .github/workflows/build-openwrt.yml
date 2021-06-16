@@ -16,7 +16,7 @@ env:
   REPO_BRANCH: ${{github.event.inputs.branch}}
   CUSTOM_DIR: ${{github.event.inputs.dir}}
   UPLOAD_BIN_DIR: false
-  UPLOAD_FIRMWARE: true
+  UPLOAD_FIRMWARE: false
   UPLOAD_RELEASE: true
   TZ: Asia/Shanghai
 
@@ -55,15 +55,10 @@ jobs:
         cd openwrt
         $GITHUB_WORKSPACE/$CUSTOM_DIR/pre.sh
 
-    - name: Update feeds
+    - name: Install feeds (1st)
       run: |
         cd openwrt
         ./scripts/feeds update -a
-        
-    - name: Install feeds
-      run: |
-        cd openwrt
-        ./scripts/feeds install -a
         ./scripts/feeds install -a
         
     - name: Run post-feeds script
@@ -71,11 +66,16 @@ jobs:
         chmod +x $CUSTOM_DIR/post.sh
         cd openwrt
         $GITHUB_WORKSPACE/$CUSTOM_DIR/post.sh
-
+        
     - name: Patch files
       run: |
         cd openwrt
-        git apply --whitespace=fix $GITHUB_WORKSPACE/$CUSTOM_DIR/patch/*.patch
+        [ -d $GITHUB_WORKSPACE/$CUSTOM_DIR/patch ] && git apply --whitespace=fix $GITHUB_WORKSPACE/$CUSTOM_DIR/patch/*.patch
+
+    - name: Install feeds (2nd)
+      run: |
+        cd openwrt
+        ./scripts/feeds install -a
 
     - name: Prepare file infos
       run: |
@@ -89,8 +89,6 @@ jobs:
         cd openwrt
         make defconfig
         make download -j8
-        find dl -size -1024c -exec ls -l {} \;
-        find dl -size -1024c -exec rm -f {} \;
 
     - name: Compile
       id: compile
@@ -98,7 +96,7 @@ jobs:
       run: |
         cd openwrt
         echo -e "$(($(nproc) + 1)) thread compile"
-        make -j$(($(nproc) + 1))
+        make -j$(($(nproc) + 1)) V=s
         
     - name: Safe compile(fallback)
       id: safe-compile
