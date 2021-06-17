@@ -2,8 +2,10 @@ name: Build RedMi AC2100 (4.14)
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: '0 0 * * 1'
+    inputs:
+      version:
+        required: true
+        default: v19.07.6
 
 jobs:
   copy_config:
@@ -17,5 +19,5 @@ jobs:
         with:
           workflow: Build OpenWrt
           token: '${{secrets.PERSONAL_TOKEN}}'
-          inputs: '{"dir": "redmi.ac2100/4.14", "repo": "https://github.com/openwrt/openwrt", "branch": "v19.07.4"}'
+          inputs: '{"dir": "redmi.ac2100/4.14", "repo": "https://github.com/openwrt/openwrt", "branch": "${{github.event.inputs.version}}"}'
           
