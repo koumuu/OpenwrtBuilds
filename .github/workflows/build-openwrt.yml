@@ -123,7 +123,7 @@ jobs:
       uses: actions/upload-artifact@main
       if: env.UPLOAD_FIRMWARE == 'true'
       with:
-        name: firmware_${{env.ID}}_${{env.DATE}}
+        name: firmware_${{env.ID}}-${{env.REPO_BRANCH}}-${{env.DATE}}
         path: ${{env.FIRMWARE}}
 
     - name: Upload firmware to release
@@ -132,6 +132,6 @@ jobs:
       env:
         GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       with:
-        tag_name: ${{env.ID}}_${{env.DATE}}
+        tag_name: ${{env.ID}}-${{env.REPO_BRANCH}}-${{env.DATE}}
         files: ${{env.FIRMWARE}}/*
 
